@@ -6,21 +6,26 @@ import (
 	"strings"
 )
 
-// ReadAndSanitise Read the input file, trimming whitespace from each row and
+// ReadAndSanitiseRows Read the input file, trimming whitespace from each row and
 // ignoring any blank lines
-func ReadAndSanitise(filePath string) []string {
-	fileRows := ReadFile(filePath)
+func ReadAndSanitiseRows(filePath string) []string {
+	fileRows := ReadFileRows(filePath)
 	return sanitiseRows(fileRows)
 }
 
-// ReadFile Read a text file to an array containing each row
-func ReadFile(filePath string) []string {
+// ReadFileRows Read a text file to an array containing each row
+func ReadFileRows(filePath string) []string {
+	fileContents := ReadFileContents(filePath)
+	return strings.Split(fileContents, "\n")
+}
+
+// ReadFileContents Read the contents of a file as a single string
+func ReadFileContents(filePath string) string {
 	fileBytes, err := ioutil.ReadFile("input.txt")
 	if err != nil {
 		log.Fatal("Error reading input file")
 	}
-	fileContents := string(fileBytes)
-	return strings.Split(fileContents, "\n")
+	return string(fileBytes)
 }
 
 func sanitiseRows(fileRows []string) []string {

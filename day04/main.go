@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"uk.co.lewis-od.aoc2020/common"
 )
 
 var requiredFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
@@ -30,7 +30,7 @@ func (p *Passport) validate(requiredFields []string, validators map[string]Field
 }
 
 func main() {
-	fileContents := readRows("input.txt")
+	fileContents := common.ReadFileContents("input.txt")
 	passports := parsePassports(fileContents)
 
 	fmt.Println("Part 1")
@@ -40,14 +40,6 @@ func main() {
 	fmt.Println("Part 2")
 	validPassports = part2(passports)
 	fmt.Println(validPassports, "valid passports")
-}
-
-func readRows(filePath string) string {
-	fileBytes, err := ioutil.ReadFile("input.txt")
-	if err != nil {
-		log.Fatal("Error reading input file")
-	}
-	return string(fileBytes)
 }
 
 func parsePassports(fileContents string) []Passport {

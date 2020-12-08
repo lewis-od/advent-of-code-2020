@@ -39,7 +39,7 @@ func main() {
 }
 
 func parseNumberList(filePath string) []int {
-	fileRows := c.ReadAndSanitise(filePath)
+	fileRows := c.ReadAndSanitiseRows(filePath)
 	numbers := make([]int, len(fileRows))
 	for index, numString := range fileRows {
 		number, err := strconv.Atoi(numString)

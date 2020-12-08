@@ -15,7 +15,7 @@ const (
 )
 
 func main() {
-	boardingPassCodes := common.ReadAndSanitise("input.txt")
+	boardingPassCodes := common.ReadAndSanitiseRows("input.txt")
 	fmt.Println("Max seat ID:", part1(boardingPassCodes))
 	if mySeat, err := part2(boardingPassCodes); err == nil {
 		fmt.Println("My seat ID:", mySeat)

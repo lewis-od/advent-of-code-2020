@@ -31,7 +31,7 @@ func (entry DatabaseEntry) validate(validator PasswordValidator) bool {
 }
 
 func main() {
-	fileRows := common.ReadAndSanitise("input.txt")
+	fileRows := common.ReadAndSanitiseRows("input.txt")
 
 	oldValidPasswords := 0
 	newValidPasswords := 0

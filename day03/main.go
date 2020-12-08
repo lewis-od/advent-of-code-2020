@@ -33,7 +33,7 @@ func (m SkiMap) traverse(xStep, yStep int) int {
 }
 
 func main() {
-	fileRows := common.ReadAndSanitise("input.txt")
+	fileRows := common.ReadAndSanitiseRows("input.txt")
 	skiMap := SkiMap{
 		data:       fileRows,
 		frameWidth: len(fileRows[0]),
