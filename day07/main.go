@@ -3,46 +3,86 @@ package main
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"uk.co.lewis-od.aoc2020/common"
 )
 
 type Rule struct {
-	parentBag    string
-	childrenBags []string
+	parentBag       string
+	childQuantities []ChildQuantity
 }
 
-type Node string
-
-type DirectedGraph struct {
-	adjacentNodes map[Node][]Node
+type ChildQuantity struct {
+	child    string
+	quantity int
 }
 
-func (g *DirectedGraph) addNode(node Node, numChildren int) {
-	g.adjacentNodes[node] = make([]Node, 0, numChildren)
+type BagGraph struct {
+	bagIds          map[string]int
+	bagNames        map[int]string
+	adjacencyMatrix [][]int
 }
 
-func (g *DirectedGraph) addDependency(from, to Node) {
-	g.adjacentNodes[from] = append(g.adjacentNodes[from], to)
+func (g *BagGraph) addEdge(from, to string, weight int) {
+	fromId := g.bagIds[from]
+	toId := g.bagIds[to]
+	g.adjacencyMatrix[toId][fromId] = weight
+}
+
+func newGraph(bags []string) BagGraph {
+	numNodes := len(bags)
+	adjacencyMatrix := make([][]int, numNodes)
+	for i := range adjacencyMatrix {
+		adjacencyMatrix[i] = make([]int, numNodes)
+	}
+
+	bagIds := make(map[string]int, numNodes)
+	bagNames := make(map[int]string, numNodes)
+	for i, bag := range bags {
+		bagIds[bag] = i
+		bagNames[i] = bag
+	}
+
+	return BagGraph{
+		bagIds:          bagIds,
+		bagNames:        bagNames,
+		adjacencyMatrix: adjacencyMatrix,
+	}
 }
 
 func main() {
-	rules := common.ReadAndSanitiseRows("input.txt")
-	bagGraph := DirectedGraph{
-		adjacentNodes: make(map[Node][]Node),
-	}
+	inputText := common.ReadAndSanitiseRows("input.txt")
+	rules := make([]Rule, len(inputText))
 
-	for _, ruleText := range rules {
+	bagNameSet := make(map[string]int, len(inputText))
+	for i, ruleText := range inputText {
 		rule := parseRule(ruleText)
-		bagGraph.addNode(Node(rule.parentBag), len(rule.childrenBags))
-		for _, childBag := range rule.childrenBags {
-			bagGraph.addDependency(Node(rule.parentBag), Node(childBag))
+		rules[i] = rule
+		bagNameSet[rule.parentBag] = 1
+		for _, childRule := range rule.childQuantities {
+			bagNameSet[childRule.child] = childRule.quantity
 		}
 	}
 
-	for bagColour, canContain := range bagGraph.adjacentNodes {
-		fmt.Println(bagColour, ":", canContain)
+	bagNames := make([]string, len(bagNameSet))
+	i := 0
+	for bagName := range bagNameSet {
+		bagNames[i] = bagName
+		i++
+	}
+
+	graph := newGraph(bagNames)
+	for _, rule := range rules {
+		for _, childQuantity := range rule.childQuantities {
+			graph.addEdge(rule.parentBag, childQuantity.child, childQuantity.quantity)
+		}
+	}
+
+	fmt.Println(graph.bagIds)
+	for _, row := range graph.adjacencyMatrix {
+		fmt.Println(row)
 	}
 }
 
@@ -53,26 +93,30 @@ func parseRule(ruleText string) Rule {
 	childBagsText := ruleParts[1]
 	if childBagsText == "no other bags." {
 		return Rule{
-			parentBag:    parentBag,
-			childrenBags: make([]string, 0),
+			parentBag:       parentBag,
+			childQuantities: make([]ChildQuantity, 0),
 		}
 	}
 
-	childBagParts := strings.Split(childBagsText, ", ")
-	children := make([]string, len(childBagParts))
-	for i, childBagText := range childBagParts {
-		children[i] = parseChildBag(childBagText)
+	childQuantityParts := strings.Split(childBagsText, ", ")
+	childQuantities := make([]ChildQuantity, len(childQuantityParts))
+	for i, childQuantityText := range childQuantityParts {
+		childQuantities[i] = parseChildRule(childQuantityText)
 	}
 
 	return Rule{
-		parentBag:    parentBag,
-		childrenBags: children,
+		parentBag:       parentBag,
+		childQuantities: childQuantities,
 	}
 }
 
 var childRegexp = regexp.MustCompile(`([0-9]) ([a-z ]*) bags?`)
 
-func parseChildBag(childBagText string) string {
+func parseChildRule(childBagText string) ChildQuantity {
 	matches := childRegexp.FindStringSubmatch(childBagText)
-	return matches[2]
+	quantity, _ := strconv.Atoi(matches[1])
+	return ChildQuantity{
+		child:    matches[2],
+		quantity: quantity,
+	}
 }
