@@ -43,14 +43,39 @@ func (g *BagGraph) FindAllBagsContaining(bag string) []string {
 	return parentNames
 }
 
-func (g *BagGraph) traverseParents(node int, alreadyVisited *[]int) {
-	nodeRow := g.adjacencyMatrix[node]
+func (g *BagGraph) traverseParents(nodeId int, alreadyVisited *[]int) {
+	nodeRow := g.adjacencyMatrix[nodeId]
 	for parentId, quantity := range nodeRow {
 		if quantity > 0 && !arrayContains(*alreadyVisited, parentId) {
 			*alreadyVisited = append(*alreadyVisited, parentId)
 			g.traverseParents(parentId, alreadyVisited)
 		}
 	}
+}
+
+func (g *BagGraph) FindNumberContainedIn(bag string) int {
+	startId := g.bagIds[bag]
+	return g.countChildren(startId)
+}
+
+func (g *BagGraph) countChildren(nodeId int) int {
+	nodeColumn := extractColumn(&g.adjacencyMatrix, nodeId)
+	totalQuantity := 0
+	for childId, childQuantity := range nodeColumn {
+		if childQuantity == 0 {
+			continue
+		}
+		totalQuantity += childQuantity + childQuantity*g.countChildren(childId)
+	}
+	return totalQuantity
+}
+
+func extractColumn(matrix *[][]int, colIndex int) []int {
+	column := make([]int, 0, len(*matrix))
+	for _, row := range *matrix {
+		column = append(column, row[colIndex])
+	}
+	return column
 }
 
 func arrayContains(list []int, x int) bool {
@@ -73,8 +98,15 @@ func main() {
 		}
 	}
 
+	fmt.Println("Part 1:")
 	bagsContainingGold := graph.FindAllBagsContaining("shiny gold")
 	fmt.Println(len(bagsContainingGold), "bags can contain at least 1 shiny gold bag")
+
+	fmt.Println()
+
+	fmt.Println("Part 2:")
+	bagsContainedInGold := graph.FindNumberContainedIn("shiny gold")
+	fmt.Println("shiny gold bags contain", bagsContainedInGold, "bags")
 }
 
 func parseRules(inputText []string) ([]Rule, []string) {

@@ -21,7 +21,7 @@ func ReadFileRows(filePath string) []string {
 
 // ReadFileContents Read the contents of a file as a single string
 func ReadFileContents(filePath string) string {
-	fileBytes, err := ioutil.ReadFile("input.txt")
+	fileBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Fatal("Error reading input file")
 	}
