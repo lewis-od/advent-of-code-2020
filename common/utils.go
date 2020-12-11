@@ -39,6 +39,16 @@ func sanitiseRows(fileRows []string) []string {
 	return sanitisedRows
 }
 
+// ArrayContains checks whether an array contains the given value
+func ArrayContains(list []int, x int) bool {
+	for _, y := range list {
+		if x == y {
+			return true
+		}
+	}
+	return false
+}
+
 // SolutionNotFoundError Error to return when a solution isn't found
 type SolutionNotFoundError string
 

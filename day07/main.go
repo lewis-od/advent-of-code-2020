@@ -46,7 +46,7 @@ func (g *BagGraph) FindAllBagsContaining(bag string) []string {
 func (g *BagGraph) traverseParents(nodeId int, alreadyVisited *[]int) {
 	nodeRow := g.adjacencyMatrix[nodeId]
 	for parentId, quantity := range nodeRow {
-		if quantity > 0 && !arrayContains(*alreadyVisited, parentId) {
+		if quantity > 0 && !common.ArrayContains(*alreadyVisited, parentId) {
 			*alreadyVisited = append(*alreadyVisited, parentId)
 			g.traverseParents(parentId, alreadyVisited)
 		}
@@ -76,15 +76,6 @@ func extractColumn(matrix *[][]int, colIndex int) []int {
 		column = append(column, row[colIndex])
 	}
 	return column
-}
-
-func arrayContains(list []int, x int) bool {
-	for _, y := range list {
-		if x == y {
-			return true
-		}
-	}
-	return false
 }
 
 func main() {
